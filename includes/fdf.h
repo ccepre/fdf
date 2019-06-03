@@ -6,7 +6,7 @@
 /*   By: ccepre <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 15:56:59 by ccepre            #+#    #+#             */
-/*   Updated: 2019/06/01 15:23:36 by ccepre           ###   ########.fr       */
+/*   Updated: 2019/06/03 15:03:24 by ccepre           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,15 @@ typedef struct	s_key
 	struct s_key	*next;
 }				t_key;
 
+typedef struct	s_image
+{
+	void	*img_ptr;
+	int 	bits_per_pixel;
+	int		size_line;
+	int		endian;
+	char	*image;
+}				t_image;
+
 typedef struct	s_env
 {
 		void 	*mlx_ptr;
@@ -61,6 +70,7 @@ typedef struct	s_env
 		double	zoom;
 		double	relief;
 		t_map	map;
+		t_image	img;
 }				t_env;
 
 void			remove_elem(t_key **keys, int keycode);
@@ -90,7 +100,10 @@ void		print_map(t_map *map);
 void		print_map_lines(t_map_line *map_line);
 void		free_map(t_map_line **map_lines);
 
+void	center_map(t_env *env, t_dot *center, t_dot *min, t_dot *max);
+
 void	init_map(t_map *map, t_env *env);
 void	update_map(t_map *map, t_env *env, int iso_proj);
+void	map_cancel_iso(t_map *map);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: ccepre <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/28 16:31:22 by ccepre            #+#    #+#             */
-/*   Updated: 2019/06/01 15:23:52 by ccepre           ###   ########.fr       */
+/*   Updated: 2019/06/03 14:41:58 by ccepre           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,21 +29,15 @@ int main(int ac, char **av)
 
 	if (ac != 2)
 		return (0);
-	printf("parsing\n");
 	env_initialization(&env);
 	if ((ret = parsing(&env.map, av[1])))
 		return (ret);
-	printf("parsing done\n");
-	print_map(&env.map);
-	init_map(&(env.map), &env);
-	printf("\n\n\n");
-	print_map(&(env.map));
 	if (!(env.mlx_ptr = mlx_init()))
 		return (-1); 
 	if (!(env.win_ptr = mlx_new_window(env.mlx_ptr, SCREEN_WIDTH,\
 					SCREEN_HEIGHT, "super title")))
 		return (-1); 
-	printf("ok\n");
+	init_map(&(env.map), &env);
 	draw_map(&env.map, &env);
 	mlx_hook(env.win_ptr, 4, 0, &mouse_press, (void*)&env);
 	mlx_hook(env.win_ptr, 5, 0, &mouse_release, (void*)&env);

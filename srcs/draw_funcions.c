@@ -6,7 +6,7 @@
 /*   By: ccepre <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/29 16:01:37 by ccepre            #+#    #+#             */
-/*   Updated: 2019/06/01 16:42:40 by ccepre           ###   ########.fr       */
+/*   Updated: 2019/06/03 15:13:44 by ccepre           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,22 +35,6 @@ int		grey_color(double opacity)
 	return (result);
 }
 
-/*
-void	plot_parallelogram(t_env *env, int width, int height, int color)
-{
-	int i;
-	int j;
-
-	i = -1;
-	while (++i < width)
-	{
-		j = -1;
-		while (++j < height)
-			mlx_pixel_put(env->mlx_ptr, env->win_ptr, env->x + i, env->y + j, color);
-	}
-}
-*/
-
 void	adapt_dots(int *steep, int *rev, t_dot *a, t_dot *b)
 {
 	if (*rev)
@@ -71,22 +55,17 @@ void	adapt_dots(int *steep, int *rev, t_dot *a, t_dot *b)
 	}
 }
 
-void	plot_dots(t_env *env, int steep, double intery, double x)
+void	put_dot(t_env *env, int x, int y, int color)
 {
-	if (steep)
-	{
-		mlx_pixel_put(env->mlx_ptr, env->win_ptr, floor(intery), x,\
-				grey_color(1 - fpart(intery)));
-		mlx_pixel_put(env->mlx_ptr, env->win_ptr, floor(intery) + 1, x,\
-				grey_color(fpart(intery)));
-	}
-	else
-	{
-		mlx_pixel_put(env->mlx_ptr, env->win_ptr, x, floor(intery),\
-				grey_color(1 - fpart(intery)));
-		mlx_pixel_put(env->mlx_ptr, env->win_ptr, x, floor(intery) + 1,\
-				grey_color(fpart(intery)));
-	}
+	size_t start;
+	static int i = 0;
+
+	if (x < 0 || x > SCREEN_WIDTH - 1 || y < 0 || y > SCREEN_HEIGHT - 1)
+		return ;
+	start = y * env->img.size_line + x * (env->img.bits_per_pixel / 8);
+	env->img.image[start] = (color & 0xFF0000) >> 16;
+	env->img.image[start + 1] = (color & 0xFF00) >> 8;
+	env->img.image[start + 2] = color & 0xFF;
 }
 
 void	plot_line(t_env *env, t_dot a, t_dot b)
@@ -105,7 +84,16 @@ void	plot_line(t_env *env, t_dot a, t_dot b)
 	intery = a.y;
 	while (x++ < b.x)
 	{
-		plot_dots(env, steep, intery, x);
+		if (steep)
+		{
+			put_dot(env, floor(intery), x, grey_color(1 - fpart(intery)));
+			put_dot(env, floor(intery) + 1, x, grey_color(fpart(intery)));
+		}
+		else
+		{
+			put_dot(env, x, floor(intery), grey_color(1 - fpart(intery)));
+			put_dot(env, x, floor(intery) + 1, grey_color(fpart(intery)));
+		}
 		intery += gradient;
 	}
 	adapt_dots(&steep, &rev, &a, &b);
@@ -116,6 +104,9 @@ void	draw_map(t_map *map, t_env *env)
 	t_map_line	*current;
 	int			i;
 
+	env->img.img_ptr = mlx_new_image (env->mlx_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
+	env->img.image = mlx_get_data_addr(env->img.img_ptr,\
+			&env->img.bits_per_pixel, &env->img.size_line, &env->img.endian );
 	current = map->map_lines;
 	while (current)
 	{
@@ -133,4 +124,5 @@ void	draw_map(t_map *map, t_env *env)
 		}
 		current = current->next;
 	}
+	mlx_put_image_to_window(env->mlx_ptr, env->win_ptr, env->img.img_ptr, 0, 0);
 }

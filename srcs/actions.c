@@ -6,7 +6,7 @@
 /*   By: ccepre <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/29 15:54:54 by ccepre            #+#    #+#             */
-/*   Updated: 2019/06/01 16:21:50 by ccepre           ###   ########.fr       */
+/*   Updated: 2019/06/03 15:14:48 by ccepre           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,30 +14,25 @@
 
 void	zoom(int button, t_env *env, t_map *map)
 {
-	int	diff_max;
-	int	diff_min;
+	t_dot center;
+	t_dot max;
+	t_dot min;
 
 	if (button == 4) 
 		env->zoom = 0.9;
 	else 
 		env->zoom = 1.1;
-//	diff_max = (map->max.x - map->max.x * env->zoom) / 2;
-//	diff_min = (map->min.x - map->min.x * env->zoom) / 2;
-	diff_max = (map->max.x - map->max.x * env->zoom);
-	diff_min = (map->min.x - map->min.x * env->zoom);
-	env->trans.x = (diff_max - diff_min) / 2;
-//	env->trans.x = abs(diff_max) > abs(diff_min) ? diff_max : diff_min;
-//	diff_max = (map->max.y - map->max.y * env->zoom) / 2;
-//	diff_min = (map->min.y - map->min.y * env->zoom) / 2;
-	diff_max = (map->max.y - map->max.y * env->zoom);
-	diff_min = (map->min.y - map->min.y * env->zoom);
-//	env->trans.y = abs(diff_max) > abs(diff_min) ? diff_max : diff_min;
-	env->trans.y = (diff_max - diff_min) / 2;
-	printf("trans : (%f, %f)\n", env->trans.x, env->trans.y);
+	center.x = map->min.x + (map->max.x - map->min.x) / 2;
+	center.y = map->min.y + (map->max.y - map->min.y) / 2;
+	max.x = map->max.x * env->zoom;
+	max.y = map->max.y * env->zoom;
+	min.x = map->min.x * env->zoom;
+	min.y = map->min.y * env->zoom;
+	center_map(env, &center, &min, &max);
 	update_map(&env->map, env, 0);
+	env->zoom = 0;
 	env->trans.x = 0;
 	env->trans.y = 0;
-	env->zoom = 0;
 	mlx_clear_window(env->mlx_ptr, env->win_ptr);
 	draw_map(&env->map, env);
 	print_map(map);
@@ -106,10 +101,13 @@ int key_press(int keycode, void *param)
 	t_env *env;
 
 	env = (t_env*)param;
-//	if (keycode == 24)
-//	{
-//		env->relief
-//	}
+	if (keycode == 24)
+	{
+		map_cancel_iso(&env->map);
+		print_map(&env->map);
+		mlx_clear_window(env->mlx_ptr, env->win_ptr);
+		draw_map(&env->map, env);
+	}
 //	if (keycode == 27)
 	return (0);
 }
